@@ -1,0 +1,8 @@
+[package]
+name = "cryptopals"
+version = "0.1.0"
+authors = ["Daniel Fockler <danielf@mammothhr.com>"]
+
+[dependencies]
+base64 = "0.9.2"
+hex = "0.3.2"
