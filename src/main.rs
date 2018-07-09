@@ -1,10 +1,14 @@
 extern crate base64;
 extern crate hex;
 
+use std::fs::File;
+use std::io::prelude::*;
+
 fn main() {
     challenge1();
     challenge2();
     challenge3();
+    challenge4();
 }
 
 fn challenge1() {
@@ -25,12 +29,32 @@ fn challenge2() {
 
 fn challenge3() {
     let input = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
+    let top_value = top_scored_value(&input);
+
+    println!("{}", top_value);
+}
+
+fn challenge4() {
+    let mut file = File::open("4.txt").unwrap();
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+
+    for line in contents.lines() {
+        let value = top_scored_value(&line);
+        println!("{:?}", value);
+    }
+}
+
+// Look at endianness, all the output characters are reverse capitalized
+fn top_scored_value(input: &str) -> String {
     let letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
     let mut top_score = 0;
     let mut top_value = String::new();
 
     for letter in letters.iter() {
-        let value = String::from_utf8(single_xor(&hex_to_bytes(input), letter.clone())).unwrap();
+        let value = unsafe {
+            String::from_utf8_unchecked(single_xor(&hex_to_bytes(input), letter.clone()))
+        };
         let score = score_string(&value);
 
         if score > top_score {
@@ -39,7 +63,7 @@ fn challenge3() {
         }
     }
 
-    println!("{:?}", top_value);
+    top_value
 }
 
 fn score_string(input: &String) -> i32 {
