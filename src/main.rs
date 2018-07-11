@@ -41,13 +41,13 @@ fn challenge4() {
 
     for line in contents.lines() {
         let value = top_scored_value(&line);
-        println!("{:?}", value);
+        println!("{}", value);
     }
 }
 
 // Look at endianness, all the output characters are reverse capitalized
 fn top_scored_value(input: &str) -> String {
-    let letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+    let letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
     let mut top_score = 0;
     let mut top_value = String::new();
 
@@ -71,32 +71,32 @@ fn score_string(input: &String) -> i32 {
 
     for i in input.chars() {
         match i {
-            'E' => acc += 26,
-            'T' => acc += 25,
-            'A' => acc += 24,
-            'O' => acc += 23,
-            'I' => acc += 22,
-            'N' => acc += 21,
-            'S' => acc += 20,
-            'H' => acc += 19,
-            'R' => acc += 18,
-            'D' => acc += 17,
-            'L' => acc += 16,
-            'C' => acc += 15,
-            'U' => acc += 14,
-            'M' => acc += 13,
-            'W' => acc += 12,
-            'F' => acc += 11,
-            'G' => acc += 10,
-            'Y' => acc += 9,
-            'P' => acc += 8,
-            'B' => acc += 7,
-            'V' => acc += 6,
-            'K' => acc += 5,
-            'J' => acc += 4,
-            'X' => acc += 3,
-            'Q' => acc += 2,
-            'Z' => acc += 1,
+            'E' | 'e' => acc += 26,
+            'T' | 't' => acc += 25,
+            'A' | 'a' => acc += 24,
+            'O' | 'o' => acc += 23,
+            'I' | 'i' => acc += 22,
+            'N' | 'n' => acc += 21,
+            'S' | 's' => acc += 20,
+            'H' | 'h' => acc += 19,
+            'R' | 'r' => acc += 18,
+            'D' | 'd' => acc += 17,
+            'L' | 'l' => acc += 16,
+            'C' | 'c' => acc += 15,
+            'U' | 'u' => acc += 14,
+            'M' | 'm' => acc += 13,
+            'W' | 'w' => acc += 12,
+            'F' | 'f' => acc += 11,
+            'G' | 'g' => acc += 10,
+            'Y' | 'y' => acc += 9,
+            'P' | 'p' => acc += 8,
+            'B' | 'b' => acc += 7,
+            'V' | 'v' => acc += 6,
+            'K' | 'k' => acc += 5,
+            'J' | 'j' => acc += 4,
+            'X' | 'x' => acc += 3,
+            'Q' | 'q' => acc += 2,
+            'Z' | 'z' => acc += 1,
             _ => acc += 0,
         }
     }
