@@ -45,7 +45,6 @@ fn challenge4() {
     }
 }
 
-// Look at endianness, all the output characters are reverse capitalized
 fn top_scored_value(input: &str) -> String {
     let letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
     let mut top_score = 0;
@@ -70,33 +69,33 @@ fn score_string(input: &String) -> i32 {
     let mut acc = 0;
 
     for i in input.chars() {
-        match i {
-            'E' | 'e' => acc += 26,
-            'T' | 't' => acc += 25,
-            'A' | 'a' => acc += 24,
-            'O' | 'o' => acc += 23,
-            'I' | 'i' => acc += 22,
-            'N' | 'n' => acc += 21,
-            'S' | 's' => acc += 20,
-            'H' | 'h' => acc += 19,
-            'R' | 'r' => acc += 18,
-            'D' | 'd' => acc += 17,
-            'L' | 'l' => acc += 16,
-            'C' | 'c' => acc += 15,
-            'U' | 'u' => acc += 14,
-            'M' | 'm' => acc += 13,
-            'W' | 'w' => acc += 12,
-            'F' | 'f' => acc += 11,
-            'G' | 'g' => acc += 10,
-            'Y' | 'y' => acc += 9,
-            'P' | 'p' => acc += 8,
-            'B' | 'b' => acc += 7,
-            'V' | 'v' => acc += 6,
-            'K' | 'k' => acc += 5,
-            'J' | 'j' => acc += 4,
-            'X' | 'x' => acc += 3,
-            'Q' | 'q' => acc += 2,
-            'Z' | 'z' => acc += 1,
+        match i.to_ascii_lowercase() {
+            'e' => acc += 26,
+            't' => acc += 25,
+            'a' => acc += 24,
+            'o' => acc += 23,
+            'i' => acc += 22,
+            'n' => acc += 21,
+            's' => acc += 20,
+            'h' => acc += 19,
+            'r' => acc += 18,
+            'd' => acc += 17,
+            'l' => acc += 16,
+            'c' => acc += 15,
+            'u' => acc += 14,
+            'm' => acc += 13,
+            'w' => acc += 12,
+            'f' => acc += 11,
+            'g' => acc += 10,
+            'y' => acc += 9,
+            'p' => acc += 8,
+            'b' => acc += 7,
+            'v' => acc += 6,
+            'k' => acc += 5,
+            'j' => acc += 4,
+            'x' => acc += 3,
+            'q' => acc += 2,
+            'z' => acc += 1,
             _ => acc += 0,
         }
     }
