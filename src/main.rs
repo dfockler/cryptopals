@@ -9,6 +9,7 @@ fn main() {
     challenge2();
     challenge3();
     challenge4();
+    challenge5();
 }
 
 fn challenge1() {
@@ -50,6 +51,14 @@ fn challenge4() {
     }
 
     println!("{}", top_value);
+}
+
+fn challenge5() {
+    let plaintext = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal";
+    let key = "ICE";
+    let output = hex::encode(repeating_xor(plaintext, key));
+
+    println!("{}", output);
 }
 
 fn top_scored_value(input: &str) -> (i32, String) {
@@ -134,6 +143,18 @@ fn single_xor(input: &Vec<u8>, value: u8) -> Vec<u8> {
 
     for byte in input.iter() {
         output.push(byte ^ value);
+    }
+
+    output
+}
+
+fn repeating_xor(input: &str, key: &str) -> Vec<u8> {
+    let mut output: Vec<u8> = Vec::new();
+    let mut key_offset = 0;
+
+    for byte in input.as_bytes() {
+        output.push(byte ^ key.as_bytes()[key_offset % key.len()]);
+        key_offset += 1;
     }
 
     output
