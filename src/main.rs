@@ -29,7 +29,7 @@ fn challenge2() {
 
 fn challenge3() {
     let input = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
-    let top_value = top_scored_value(&input);
+    let (_, top_value) = top_scored_value(&input);
 
     println!("{}", top_value);
 }
@@ -37,23 +37,31 @@ fn challenge3() {
 fn challenge4() {
     let mut file = File::open("4.txt").unwrap();
     let mut contents = String::new();
+    let mut top_score = 0;
+    let mut top_value = String::new();
     file.read_to_string(&mut contents).unwrap();
 
     for line in contents.lines() {
-        let value = top_scored_value(&line);
-        println!("{}", value);
+        let (score, value) = top_scored_value(line);
+        if score > top_score {
+            top_score = score;
+            top_value = value;
+        }
     }
+
+    println!("{}", top_value);
 }
 
-fn top_scored_value(input: &str) -> String {
-    let letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+fn top_scored_value(input: &str) -> (i32, String) {
     let mut top_score = 0;
     let mut top_value = String::new();
 
-    for letter in letters.iter() {
-        let value = unsafe {
-            String::from_utf8_unchecked(single_xor(&hex_to_bytes(input), letter.clone()))
+    for byte in 0..255 {
+        let value = match String::from_utf8(single_xor(&hex_to_bytes(input), byte)){
+            Ok(n) => n,
+            Err(_) => continue,
         };
+
         let score = score_string(&value);
 
         if score > top_score {
@@ -62,14 +70,14 @@ fn top_scored_value(input: &str) -> String {
         }
     }
 
-    top_value
+    (top_score, top_value)
 }
 
 fn score_string(input: &String) -> i32 {
     let mut acc = 0;
 
     for i in input.chars() {
-        match i.to_ascii_lowercase() {
+        match i {
             'e' => acc += 26,
             't' => acc += 25,
             'a' => acc += 24,
@@ -121,11 +129,11 @@ fn xor(a: &Vec<u8>, b: &Vec<u8>) -> String {
     hex::encode(&output)
 }
 
-fn single_xor(input: &Vec<u8>, value: char) -> Vec<u8> {
+fn single_xor(input: &Vec<u8>, value: u8) -> Vec<u8> {
     let mut output: Vec<u8> = Vec::new();
 
     for byte in input.iter() {
-        output.push(byte ^ value as u8);
+        output.push(byte ^ value);
     }
 
     output
