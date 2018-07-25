@@ -10,6 +10,7 @@ fn main() {
     challenge3();
     challenge4();
     challenge5();
+    challenge6();
 }
 
 fn challenge1() {
@@ -59,6 +60,12 @@ fn challenge5() {
     let output = hex::encode(repeating_xor(plaintext, key));
 
     println!("{}", output);
+}
+
+fn challenge6() {
+    let a = "this is a test";
+    let b = "wokka wokka!!!";
+    println!("{}", hamming_distance(a, b));
 }
 
 fn top_scored_value(input: &str) -> (i32, String) {
@@ -158,4 +165,14 @@ fn repeating_xor(input: &str, key: &str) -> Vec<u8> {
     }
 
     output
+}
+
+fn hamming_distance(a: &str, b: &str) -> u32 {
+    let mut distance = 0;
+
+    for (first, second) in a.bytes().zip(b.bytes()) {
+        let diff = first ^ second;
+        distance += diff.count_ones();
+    }
+    distance
 }
