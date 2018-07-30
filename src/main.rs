@@ -65,7 +65,30 @@ fn challenge5() {
 fn challenge6() {
     let a = "this is a test";
     let b = "wokka wokka!!!";
-    println!("{}", hamming_distance(a, b));
+    println!("{}", hamming_distance(a.as_bytes(), b.as_bytes()));
+
+    let mut file = File::open("6.txt").unwrap();
+    let mut contents = String::new();
+    file.read_to_string(&mut contents).unwrap();
+    let stripped = contents.replace("\n", "");
+    let decoded = base64::decode(&stripped).unwrap();
+    let mut smallest = 320;
+    let mut smallest_keysize = 40;
+
+    for keysize in 2..40 {
+        let first = &decoded[0..keysize];
+        let second = &decoded[keysize..keysize*2];
+        let distance = hamming_distance(first, second);
+        let normal = distance / keysize as u32;
+
+        if normal < smallest {
+            smallest = normal;
+            smallest_keysize = keysize;
+        }
+
+    }
+
+    println!("{}, {}", smallest, smallest_keysize);
 }
 
 fn top_scored_value(input: &str) -> (i32, String) {
@@ -167,11 +190,11 @@ fn repeating_xor(input: &str, key: &str) -> Vec<u8> {
     output
 }
 
-fn hamming_distance(a: &str, b: &str) -> u32 {
+fn hamming_distance(a: &[u8], b: &[u8]) -> u32 {
     let mut distance = 0;
 
     for (first, second) in a.bytes().zip(b.bytes()) {
-        let diff = first ^ second;
+        let diff = first.unwrap() ^ second.unwrap();
         distance += diff.count_ones();
     }
     distance
