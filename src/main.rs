@@ -78,28 +78,32 @@ fn challenge6() {
     for keysize in 2..40 {
         let first = &decoded[0..keysize];
         let second = &decoded[keysize..keysize*2];
-        // let normal = hamming_distance(first, second) as f32 / keysize as f32;
+        
+        let normal = hamming_distance(first, second) as f32 / keysize as f32;
 
-        // println!("Keysize: {}, Normal: {}", keysize, normal);
+        println!("Keysize: {}, Normal: {}", keysize, normal);
 
-        // // if normal < smallest {
-        // //     smallest = normal;
-        // //     smallest_keysize = keysize;
-        // // }
-        let mut keygen: Vec<u8> = Vec::new();
-        for index in 0..keysize {
-            let mut gen = Vec::new();
-            for (i, byte) in decoded.bytes().enumerate() {
-                if i % keysize == index {
-                    gen.push(byte.unwrap());
-                }
-            }
-
-            let (score, value, top_byte) = top_scored_value(&gen);
-            keygen.push(top_byte);
+        if normal < smallest {
+            smallest = normal;
+            smallest_keysize = keysize;
         }
-        println!("{}: {}", keysize, String::from_utf8(keygen).unwrap());
     }
+
+    println!("{}", smallest_keysize);
+
+    // let mut keygen: Vec<u8> = Vec::new();
+    // for index in 0..keysize {
+    //     let mut gen = Vec::new();
+    //     for (i, byte) in decoded.bytes().enumerate() {
+    //         if i % keysize == index {
+    //             gen.push(byte.unwrap());
+    //         }
+    //     }
+
+    //     let (score, value, top_byte) = top_scored_value(&gen);
+    //     keygen.push(top_byte);
+    // }
+    // println!("{}: {}", keysize, String::from_utf8(keygen).unwrap());
 }
 
 fn top_scored_value(input: &[u8]) -> (i32, String, u8) {
