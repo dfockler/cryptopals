@@ -7,8 +7,8 @@ use std::io::prelude::*;
 fn main() {
     challenge1();
     challenge2();
-    challenge3();
-    challenge4();
+    // challenge3();
+    // challenge4();
     challenge5();
     challenge6();
 }
@@ -29,30 +29,30 @@ fn challenge2() {
     println!("{:?}", output);
 }
 
-fn challenge3() {
-    let input = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
-    let (_, top_value) = top_scored_value(&input);
+// fn challenge3() {
+//     let input = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
+//     let (_, top_value) = top_scored_value(&input);
 
-    println!("{}", top_value);
-}
+//     println!("{}", top_value);
+// }
 
-fn challenge4() {
-    let mut file = File::open("4.txt").unwrap();
-    let mut contents = String::new();
-    let mut top_score = 0;
-    let mut top_value = String::new();
-    file.read_to_string(&mut contents).unwrap();
+// fn challenge4() {
+//     let mut file = File::open("4.txt").unwrap();
+//     let mut contents = String::new();
+//     let mut top_score = 0;
+//     let mut top_value = String::new();
+//     file.read_to_string(&mut contents).unwrap();
 
-    for line in contents.lines() {
-        let (score, value) = top_scored_value(line);
-        if score > top_score {
-            top_score = score;
-            top_value = value;
-        }
-    }
+//     for line in contents.lines() {
+//         let (score, value) = top_scored_value(line);
+//         if score > top_score {
+//             top_score = score;
+//             top_value = value;
+//         }
+//     }
 
-    println!("{}", top_value);
-}
+//     println!("{}", top_value);
+// }
 
 fn challenge5() {
     let plaintext = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal";
@@ -72,31 +72,43 @@ fn challenge6() {
     file.read_to_string(&mut contents).unwrap();
     let stripped = contents.replace("\n", "");
     let decoded = base64::decode(&stripped).unwrap();
-    let mut smallest = 320;
+    let mut smallest = 320f32;
     let mut smallest_keysize = 40;
 
     for keysize in 2..40 {
         let first = &decoded[0..keysize];
         let second = &decoded[keysize..keysize*2];
-        let distance = hamming_distance(first, second);
-        let normal = distance / keysize as u32;
+        // let normal = hamming_distance(first, second) as f32 / keysize as f32;
 
-        if normal < smallest {
-            smallest = normal;
-            smallest_keysize = keysize;
+        // println!("Keysize: {}, Normal: {}", keysize, normal);
+
+        // // if normal < smallest {
+        // //     smallest = normal;
+        // //     smallest_keysize = keysize;
+        // // }
+        let mut keygen: Vec<u8> = Vec::new();
+        for index in 0..keysize {
+            let mut gen = Vec::new();
+            for (i, byte) in decoded.bytes().enumerate() {
+                if i % keysize == index {
+                    gen.push(byte.unwrap());
+                }
+            }
+
+            let (score, value, top_byte) = top_scored_value(&gen);
+            keygen.push(top_byte);
         }
-
+        println!("{}: {}", keysize, String::from_utf8(keygen).unwrap());
     }
-
-    println!("{}, {}", smallest, smallest_keysize);
 }
 
-fn top_scored_value(input: &str) -> (i32, String) {
+fn top_scored_value(input: &Vec<u8>) -> (i32, String, u8) {
     let mut top_score = 0;
     let mut top_value = String::new();
+    let mut top_byte = 0;
 
     for byte in 0..255 {
-        let value = match String::from_utf8(single_xor(&hex_to_bytes(input), byte)){
+        let value = match String::from_utf8(single_xor(input, byte)){
             Ok(n) => n,
             Err(_) => continue,
         };
@@ -106,10 +118,11 @@ fn top_scored_value(input: &str) -> (i32, String) {
         if score > top_score {
             top_score = score;
             top_value = value;
+            top_byte = byte;
         }
     }
 
-    (top_score, top_value)
+    (top_score, top_value, top_byte)
 }
 
 fn score_string(input: &String) -> i32 {
@@ -117,32 +130,32 @@ fn score_string(input: &String) -> i32 {
 
     for i in input.chars() {
         match i {
-            'e' => acc += 26,
-            't' => acc += 25,
-            'a' => acc += 24,
-            'o' => acc += 23,
-            'i' => acc += 22,
-            'n' => acc += 21,
-            's' => acc += 20,
-            'h' => acc += 19,
-            'r' => acc += 18,
-            'd' => acc += 17,
-            'l' => acc += 16,
-            'c' => acc += 15,
-            'u' => acc += 14,
-            'm' => acc += 13,
-            'w' => acc += 12,
-            'f' => acc += 11,
-            'g' => acc += 10,
-            'y' => acc += 9,
-            'p' => acc += 8,
-            'b' => acc += 7,
-            'v' => acc += 6,
-            'k' => acc += 5,
-            'j' => acc += 4,
-            'x' => acc += 3,
-            'q' => acc += 2,
-            'z' => acc += 1,
+            'E' | 'e' => acc += 26,
+            'T' | 't' => acc += 25,
+            'A' | 'a' => acc += 24,
+            'O' | 'o' => acc += 23,
+            'I' | 'i' => acc += 22,
+            'N' | 'n' => acc += 21,
+            'S' | 's' => acc += 20,
+            'H' | 'h' => acc += 19,
+            'R' | 'r' => acc += 18,
+            'D' | 'd' => acc += 17,
+            'L' | 'l' => acc += 16,
+            'C' | 'c' => acc += 15,
+            'U' | 'u' => acc += 14,
+            'M' | 'm' => acc += 13,
+            'W' | 'w' => acc += 12,
+            'F' | 'f' => acc += 11,
+            'G' | 'g' => acc += 10,
+            'Y' | 'y' => acc += 9,
+            'P' | 'p' => acc += 8,
+            'B' | 'b' => acc += 7,
+            'V' | 'v' => acc += 6,
+            'K' | 'k' => acc += 5,
+            'J' | 'j' => acc += 4,
+            'X' | 'x' => acc += 3,
+            'Q' | 'q' => acc += 2,
+            'Z' | 'z' => acc += 1,
             _ => acc += 0,
         }
     }
