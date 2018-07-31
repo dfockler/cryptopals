@@ -7,8 +7,8 @@ use std::io::prelude::*;
 fn main() {
     challenge1();
     challenge2();
-    // challenge3();
-    // challenge4();
+    challenge3();
+    challenge4();
     challenge5();
     challenge6();
 }
@@ -29,30 +29,30 @@ fn challenge2() {
     println!("{:?}", output);
 }
 
-// fn challenge3() {
-//     let input = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
-//     let (_, top_value) = top_scored_value(&input);
+fn challenge3() {
+    let input = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736";
+    let (_, top_value, _) = top_scored_value(&hex::decode(input.as_bytes()).unwrap());
 
-//     println!("{}", top_value);
-// }
+    println!("{}", top_value);
+}
 
-// fn challenge4() {
-//     let mut file = File::open("4.txt").unwrap();
-//     let mut contents = String::new();
-//     let mut top_score = 0;
-//     let mut top_value = String::new();
-//     file.read_to_string(&mut contents).unwrap();
+fn challenge4() {
+    let mut file = File::open("4.txt").unwrap();
+    let mut contents = String::new();
+    let mut top_score = 0;
+    let mut top_value = String::new();
+    file.read_to_string(&mut contents).unwrap();
 
-//     for line in contents.lines() {
-//         let (score, value) = top_scored_value(line);
-//         if score > top_score {
-//             top_score = score;
-//             top_value = value;
-//         }
-//     }
+    for line in contents.lines() {
+        let (score, value, _) = top_scored_value(&hex::decode(line.as_bytes()).unwrap());
+        if score > top_score {
+            top_score = score;
+            top_value = value;
+        }
+    }
 
-//     println!("{}", top_value);
-// }
+    println!("{}", top_value);
+}
 
 fn challenge5() {
     let plaintext = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal";
@@ -102,7 +102,7 @@ fn challenge6() {
     }
 }
 
-fn top_scored_value(input: &Vec<u8>) -> (i32, String, u8) {
+fn top_scored_value(input: &[u8]) -> (i32, String, u8) {
     let mut top_score = 0;
     let mut top_value = String::new();
     let mut top_byte = 0;
@@ -130,32 +130,32 @@ fn score_string(input: &String) -> i32 {
 
     for i in input.chars() {
         match i {
-            'E' | 'e' => acc += 26,
-            'T' | 't' => acc += 25,
-            'A' | 'a' => acc += 24,
-            'O' | 'o' => acc += 23,
-            'I' | 'i' => acc += 22,
-            'N' | 'n' => acc += 21,
-            'S' | 's' => acc += 20,
-            'H' | 'h' => acc += 19,
-            'R' | 'r' => acc += 18,
-            'D' | 'd' => acc += 17,
-            'L' | 'l' => acc += 16,
-            'C' | 'c' => acc += 15,
-            'U' | 'u' => acc += 14,
-            'M' | 'm' => acc += 13,
-            'W' | 'w' => acc += 12,
-            'F' | 'f' => acc += 11,
-            'G' | 'g' => acc += 10,
-            'Y' | 'y' => acc += 9,
-            'P' | 'p' => acc += 8,
-            'B' | 'b' => acc += 7,
-            'V' | 'v' => acc += 6,
-            'K' | 'k' => acc += 5,
-            'J' | 'j' => acc += 4,
-            'X' | 'x' => acc += 3,
-            'Q' | 'q' => acc += 2,
-            'Z' | 'z' => acc += 1,
+            'e' => acc += 26,
+            't' => acc += 25,
+            'a' => acc += 24,
+            'o' => acc += 23,
+            'i' => acc += 22,
+            'n' => acc += 21,
+            's' => acc += 20,
+            'h' => acc += 19,
+            'r' => acc += 18,
+            'd' => acc += 17,
+            'l' => acc += 16,
+            'c' => acc += 15,
+            'u' => acc += 14,
+            'm' => acc += 13,
+            'w' => acc += 12,
+            'f' => acc += 11,
+            'g' => acc += 10,
+            'y' => acc += 9,
+            'p' => acc += 8,
+            'b' => acc += 7,
+            'v' => acc += 6,
+            'k' => acc += 5,
+            'j' => acc += 4,
+            'x' => acc += 3,
+            'q' => acc += 2,
+            'z' => acc += 1,
             _ => acc += 0,
         }
     }
@@ -181,7 +181,7 @@ fn xor(a: &Vec<u8>, b: &Vec<u8>) -> String {
     hex::encode(&output)
 }
 
-fn single_xor(input: &Vec<u8>, value: u8) -> Vec<u8> {
+fn single_xor(input: &[u8], value: u8) -> Vec<u8> {
     let mut output: Vec<u8> = Vec::new();
 
     for byte in input.iter() {
