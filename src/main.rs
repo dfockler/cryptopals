@@ -63,10 +63,6 @@ fn challenge5() {
 }
 
 fn challenge6() {
-    let a = "this is a test";
-    let b = "wokka wokka!!!";
-    println!("{}", hamming_distance(a.as_bytes(), b.as_bytes()));
-
     let mut file = File::open("6.txt").unwrap();
     let mut contents = String::new();
     file.read_to_string(&mut contents).unwrap();
@@ -76,34 +72,39 @@ fn challenge6() {
     let mut smallest_keysize = 40;
 
     for keysize in 2..40 {
-        let first = &decoded[0..keysize];
-        let second = &decoded[keysize..keysize*2];
+        let mut chunks = decoded.chunks(keysize);
+        let mut average = 0;
+
+        // This is not the best solution, but it works for this scenario
+        for _ in 0..20 {
+            average += hamming_distance(chunks.next().unwrap(), chunks.next().unwrap());
+        }
         
-        let normal = hamming_distance(first, second) as f32 / keysize as f32;
+        let normal = average as f32 / keysize as f32;
 
-        println!("Keysize: {}, Normal: {}", keysize, normal);
-
-        if normal < smallest {
+        if normal < smallest as f32 {
             smallest = normal;
             smallest_keysize = keysize;
         }
     }
 
-    println!("{}", smallest_keysize);
+    let mut keygen: Vec<u8> = Vec::new();
+    for index in 0..smallest_keysize {
+        let mut gen = Vec::new();
+        for (i, byte) in decoded.bytes().enumerate() {
+            if i % smallest_keysize == index {
+                gen.push(byte.unwrap());
+            }
+        }
 
-    // let mut keygen: Vec<u8> = Vec::new();
-    // for index in 0..keysize {
-    //     let mut gen = Vec::new();
-    //     for (i, byte) in decoded.bytes().enumerate() {
-    //         if i % keysize == index {
-    //             gen.push(byte.unwrap());
-    //         }
-    //     }
+        let (_, _, top_byte) = top_scored_value(&gen);
+        keygen.push(top_byte);
+    }
 
-    //     let (score, value, top_byte) = top_scored_value(&gen);
-    //     keygen.push(top_byte);
-    // }
-    // println!("{}: {}", keysize, String::from_utf8(keygen).unwrap());
+    let key = String::from_utf8(keygen).unwrap();
+    println!("{}\n", key);
+    let output = repeating_xor_decode(&decoded, &key);
+    println!("{}", output);
 }
 
 fn top_scored_value(input: &[u8]) -> (i32, String, u8) {
@@ -205,6 +206,18 @@ fn repeating_xor(input: &str, key: &str) -> Vec<u8> {
     }
 
     output
+}
+
+fn repeating_xor_decode(input: &[u8], key: &str) -> String {
+    let mut output: Vec<u8> = Vec::new();
+    let mut key_offset = 0;
+
+    for byte in input.iter() {
+        output.push(byte ^ key.as_bytes()[key_offset % key.len()]);
+        key_offset += 1;
+    }
+
+    String::from_utf8(output).unwrap()
 }
 
 fn hamming_distance(a: &[u8], b: &[u8]) -> u32 {
