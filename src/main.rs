@@ -5,12 +5,13 @@ use std::fs::File;
 use std::io::prelude::*;
 
 fn main() {
-    challenge1();
-    challenge2();
-    challenge3();
-    challenge4();
-    challenge5();
-    challenge6();
+    // challenge1();
+    // challenge2();
+    // challenge3();
+    // challenge4();
+    // challenge5();
+    // challenge6();
+    challenge7();
 }
 
 fn challenge1() {
@@ -106,6 +107,33 @@ fn challenge6() {
     let output = repeating_xor_decode(&decoded, &key);
     println!("{}", output);
 }
+
+fn challenge7() {
+    // 1001-1010
+    // 0011-0101 35
+    // 
+    let value = s_box(0x9a);
+    println!("0x{}", hex::encode([value]));
+}
+
+fn s_box(mut input: u8) -> u8 {
+    let mut result = 0u8;
+
+    for _ in 0..5 {
+        result = result ^ input;
+        input = input.rotate_left(1);
+    }
+
+    result ^ 0x63
+}
+
+// fn rotate() {
+
+// }
+
+// fn decrypt_aes128(block: &[u8; 128]) -> Vec<u8> {
+
+// }
 
 fn top_scored_value(input: &[u8]) -> (i32, String, u8) {
     let mut top_score = 0;
