@@ -112,28 +112,41 @@ fn challenge7() {
     // 1001-1010
     // 0011-0101 35
     // 
-    let value = s_box(0x9a);
-    println!("0x{}", hex::encode([value]));
+    let value = generate_aes_sbox();
+
+    println!("{}", hex::encode(value.as_ref()));
+    // eca(240, 46);
 }
 
-fn s_box(mut input: u8) -> u8 {
-    let mut result = 0u8;
+fn rotl8(x: u8, shift: u8) -> u8 {
+    x << shift | x >> (8 - shift)
+}
 
-    for _ in 0..5 {
-        result = result ^ input;
-        input = input.rotate_left(1);
+// Based on code from here
+// https://crypto.stackexchange.com/questions/12956/multiplicative-inverse-in-operatornamegf28/12962#12962
+fn generate_aes_sbox() -> [u8; 256] {
+    let (mut p, mut q) = (1u8, 1u8);
+    let mut sbox = [0u8; 256];
+
+    loop {
+        p = p ^ (p << 1) ^ if p & 0x80 > 0 { 0x1B } else { 0 };
+
+        q ^= q << 1;
+        q ^= q << 2;
+        q ^= q << 4;
+        q ^= if q & 0x80 > 0 { 0x09 } else { 0 };
+
+        let xformed = q ^ rotl8(q, 1) ^ rotl8(q, 2) ^ rotl8(q, 3) ^ rotl8(q, 4);
+
+        sbox[p as usize] = xformed ^ 0x63;
+
+        if p == 1 { break; }
     }
 
-    result ^ 0x63
+    sbox[0] = 0x63;
+
+    sbox
 }
-
-// fn rotate() {
-
-// }
-
-// fn decrypt_aes128(block: &[u8; 128]) -> Vec<u8> {
-
-// }
 
 fn top_scored_value(input: &[u8]) -> (i32, String, u8) {
     let mut top_score = 0;
