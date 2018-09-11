@@ -113,8 +113,10 @@ fn challenge7() {
     // 0011-0101 35
     // 
     let value = generate_aes_sbox();
+    println!("{}", hex::encode([0x13, 0xff, 0xa8, 0x40]));
+    let check = sub_word(&[0x13, 0xff, 0xa8, 0x40], &value);
 
-    println!("{}", hex::encode(value.as_ref()));
+    println!("{}", hex::encode(check));
     // eca(240, 46);
 }
 
@@ -146,6 +148,25 @@ fn generate_aes_sbox() -> [u8; 256] {
     sbox[0] = 0x63;
 
     sbox
+}
+
+// Substitutes input values from the sbox
+fn sub_word(inputs: &[u8; 4], sbox: &[u8; 256]) -> [u8; 4] {
+    let mut output = [0u8; 4];
+
+    for (i, value) in inputs.iter().enumerate() {
+        let row = (value & 0xf0).wrapping_shr(4) * 16;
+        let column = value & 0x0f;
+        let index = (column + row) as usize;
+        output[i] = sbox[index];
+    }
+
+    output
+}
+
+fn rcon(index: usize) -> u8 {
+    let rcon_values = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36];
+    rcon_values[index - 1]
 }
 
 fn top_scored_value(input: &[u8]) -> (i32, String, u8) {
