@@ -1,5 +1,6 @@
 extern crate base64;
 extern crate hex;
+extern crate byteorder;
 
 use std::fs::File;
 use std::io::prelude::*;
@@ -112,11 +113,33 @@ fn challenge7() {
     // 1001-1010
     // 0011-0101 35
     // 
-    let value = generate_aes_sbox();
-    println!("{}", hex::encode([0x13, 0xff, 0xa8, 0x40]));
-    let check = sub_word(&[0x13, 0xff, 0xa8, 0x40], &value);
+    let s_box = generate_aes_sbox();
+    let key = "YELLOW SUBMARINE";
+    let n = (key.len() / 4) as i32;
+    let r = 11; //Round keys needed
+    let mut output: Vec<u8> = Vec::new();
+    for i in 0..4*r as i32 {
+        let index = (i % n) * 4;
+        let index_o = (i - 1) % n * 4;
+        let index_r = (i - n) % n * 4;
+        let chunk = &key[index as usize..index as usize + 4];
+        println!("{:?}", chunk);
+        println!("{}:{}:{}", index, index_o, index_r);
+        if i < n {
+            output.extend_from_slice(chunk.as_bytes());
+        } else if i >= n && i == 0 % n {
+            // sub_word needs to operate on each byte not each 4 bytes
+            let sw = sub_word(&output[index_o as usize..index_o as usize + 4], &s_box);
+            sw.rotate_left(1);
+            let chug = &output[index_r as usize..index_r as usize + 4];
+            output.append(u32::from_bytes(chug) ^ sw ^ rcon(i/n));
+        } else if i >= n && n > 6 && i == 4 % n {
+            output[i-1] ^ sub_word(&output[i-4..i], &s_box);
+        } else {
 
-    println!("{}", hex::encode(check));
+        }
+    }
+
     // eca(240, 46);
 }
 
@@ -151,7 +174,7 @@ fn generate_aes_sbox() -> [u8; 256] {
 }
 
 // Substitutes input values from the sbox
-fn sub_word(inputs: &[u8; 4], sbox: &[u8; 256]) -> [u8; 4] {
+fn sub_word(inputs: &[u8], sbox: &[u8; 256]) -> [u8; 4] {
     let mut output = [0u8; 4];
 
     for (i, value) in inputs.iter().enumerate() {
