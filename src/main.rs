@@ -4,6 +4,8 @@ extern crate byteorder;
 
 use std::fs::File;
 use std::io::prelude::*;
+use std::io::Cursor;
+use byteorder::{ReadBytesExt, WriteBytesExt, NativeEndian};
 
 fn main() {
     // challenge1();
@@ -123,23 +125,38 @@ fn challenge7() {
         let index_o = (i - 1) % n * 4;
         let index_r = (i - n) % n * 4;
         let chunk = &key[index as usize..index as usize + 4];
-        println!("{:?}", chunk);
-        println!("{}:{}:{}", index, index_o, index_r);
-        if i < n {
-            output.extend_from_slice(chunk.as_bytes());
+        let mut w = if i < n {
+            chunk.as_bytes().to_vec()
         } else if i >= n && i == 0 % n {
-            // sub_word needs to operate on each byte not each 4 bytes
-            let sw = sub_word(&output[index_o as usize..index_o as usize + 4], &s_box);
-            sw.rotate_left(1);
+            let sw = sub_word(&output[index_o as usize..index_o as usize + 4], &s_box).rotate_left(8);
             let chug = &output[index_r as usize..index_r as usize + 4];
-            output.append(u32::from_bytes(chug) ^ sw ^ rcon(i/n));
+            let mut rdr = Cursor::new(chug.to_vec());
+            let calc = rdr.read_u32::<NativeEndian>().unwrap() ^ sw ^ rcon(i/n);
+            let mut wtr = vec![];
+            wtr.write_u32::<NativeEndian>(calc).unwrap();
+            wtr
         } else if i >= n && n > 6 && i == 4 % n {
-            output[i-1] ^ sub_word(&output[i-4..i], &s_box);
+            let chug = &output[index_r as usize..index_r as usize + 4];
+            let mut rdr = Cursor::new(chug.to_vec());
+            let calc = rdr.read_u32::<NativeEndian>().unwrap() ^ sub_word(&output[i as usize -4..i as usize], &s_box);
+            let mut wtr = vec![];
+            wtr.write_u32::<NativeEndian>(calc).unwrap();
+            wtr
         } else {
+            let chug = &output[index_r as usize..index_r as usize + 4];
+            let new_chunk = &output[i as usize -4..i as usize];
+            let mut rdr = Cursor::new(chug.to_vec());
+            let mut rdr_new = Cursor::new(new_chunk.to_vec());
+            let calc = rdr.read_u32::<NativeEndian>().unwrap() ^ rdr_new.read_u32::<NativeEndian>().unwrap();
+            let mut wtr = vec![];
+            wtr.write_u32::<NativeEndian>(calc).unwrap();
+            wtr
+        };
 
-        }
+        output.append(&mut w);
     }
 
+    println!("{:?}", output);
     // eca(240, 46);
 }
 
@@ -174,7 +191,7 @@ fn generate_aes_sbox() -> [u8; 256] {
 }
 
 // Substitutes input values from the sbox
-fn sub_word(inputs: &[u8], sbox: &[u8; 256]) -> [u8; 4] {
+fn sub_word(inputs: &[u8], sbox: &[u8; 256]) -> u32 {
     let mut output = [0u8; 4];
 
     for (i, value) in inputs.iter().enumerate() {
@@ -184,12 +201,14 @@ fn sub_word(inputs: &[u8], sbox: &[u8; 256]) -> [u8; 4] {
         output[i] = sbox[index];
     }
 
-    output
+    let mut rdr = Cursor::new(output.to_vec());
+
+    rdr.read_u32::<NativeEndian>().unwrap()
 }
 
-fn rcon(index: usize) -> u8 {
+fn rcon(index: i32) -> u32 {
     let rcon_values = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36];
-    rcon_values[index - 1]
+    rcon_values[index as usize - 1]
 }
 
 fn top_scored_value(input: &[u8]) -> (i32, String, u8) {
